@@ -16,6 +16,7 @@ A remote MCP server for [Mealie](https://mealie.io) that you can add to Claude a
 | `get_recipe` | Full recipe: ingredients, steps, notes, nutrition |
 | `import_recipe_from_url` | Scrape a recipe web page into Mealie |
 | `create_recipe` / `update_recipe` / `delete_recipe` | Recipe CRUD (free-text ingredient lines and steps) |
+| `set_recipe_image` | Set a recipe picture from an image URL or base64 data |
 | `list_tags_and_categories` | Slugs usable as search filters |
 | `list_shopping_lists` / `get_shopping_list` | Lists and their (unchecked) items |
 | `add_shopping_items` / `update_shopping_item` / `delete_shopping_items` | Add free-text items, tick/rename/re-quantity, remove |
