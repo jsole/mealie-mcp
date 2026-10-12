@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+import binascii
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -222,6 +224,36 @@ async def update_recipe(
     if not patch:
         raise ValueError("nothing to update")
     return recipe_full(await mealie().patch(f"/api/recipes/{slug}", patch))
+
+
+_IMAGE_TYPES = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp", "gif": "image/gif"}
+
+
+@mcp.tool(annotations=WRITE)
+async def set_recipe_image(
+    slug: str,
+    image_url: str | None = None,
+    image_base64: str | None = None,
+    extension: Literal["jpg", "jpeg", "png", "webp", "gif"] = "jpg",
+) -> dict[str, Any]:
+    """Set or replace a recipe's picture. Give either image_url (Mealie downloads it) or
+    image_base64 (raw base64 image data, with extension matching its format). Replaces any
+    existing image."""
+    if bool(image_url) == bool(image_base64):
+        raise ValueError("provide exactly one of image_url or image_base64")
+    if image_url:
+        await mealie().post(f"/api/recipes/{slug}/image", {"url": image_url})
+    else:
+        try:
+            content = base64.b64decode(image_base64 or "", validate=True)
+        except (binascii.Error, ValueError) as e:
+            raise ValueError(f"image_base64 is not valid base64: {e}") from e
+        if not content:
+            raise ValueError("image_base64 is empty")
+        await mealie().put_file(
+            f"/api/recipes/{slug}/image", "image", f"image.{extension}", content, _IMAGE_TYPES[extension], {"extension": extension}
+        )
+    return recipe_full(await mealie().get(f"/api/recipes/{slug}"))
 
 
 @mcp.tool(annotations=DESTRUCTIVE)

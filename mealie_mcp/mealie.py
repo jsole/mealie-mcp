@@ -54,6 +54,9 @@ class MealieClient:
     async def put(self, path: str, json: Any = None) -> Any:
         return await self.request("PUT", path, json=json)
 
+    async def put_file(self, path: str, field: str, filename: str, content: bytes, content_type: str, data: dict[str, str]) -> Any:
+        return await self.request("PUT", path, files={field: (filename, content, content_type)}, data=data)
+
     async def patch(self, path: str, json: Any = None) -> Any:
         return await self.request("PATCH", path, json=json)
 
